@@ -5,7 +5,7 @@ import platform
 
 # Build on windows
 if platform.system() == "Windows":
-    windows_build_dir = os.path.join("dist","FlackTrackSplitter_v1.0_windows")
+    windows_build_dir = os.path.join("dist","FlacTrackSplitter_v1.0_windows")
     if os.path.exists(windows_build_dir):
         shutil.rmtree(windows_build_dir)
     # Run PyInstaller to create the executable
@@ -27,7 +27,7 @@ if platform.system() == "Windows":
 
 # Build on linux
 elif platform.system() == "Linux":
-    linux_build_dir = os.path.join("dist","FlackTrackSplitter_v1.0_linux")
+    linux_build_dir = os.path.join("dist","FlacTrackSplitter_v1.0_linux")
     if os.path.exists(linux_build_dir):
         shutil.rmtree(linux_build_dir)
     # Run PyInstaller to create the executable
