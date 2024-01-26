@@ -38,7 +38,7 @@ elif platform.system() == "Linux":
         "--name",
         "FlacTrackSplitter"
     ])
-    # Create a zip file containing the executable and other relevant files for the linux build
+    # Create a tarball file containing the executable and other relevant files for the linux build
     os.makedirs(linux_build_dir)
     shutil.copy(os.path.join("dist","FlacTrackSplitter"), linux_build_dir)
     shutil.copy("icon.png", linux_build_dir)
