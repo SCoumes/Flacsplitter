@@ -3,10 +3,10 @@ You must provide timecodes of the begining of the tracks (presumably the first t
 This software allows some leeway in the format in which you provide the timecodes, as you can introduce your own "pattern", which will be used to read the timecodes.
 A pattern is written like a line that gives a timecode and the corresponding track name, except you use: 
 - %hh where you would write the number of hours, 
--%mm for minutes, 
--%ss for seconds, 
--%tt for the track name, 
--%ii wherever you want to ignore what is written.
+- %mm for minutes, 
+- %ss for seconds, 
+- %tt for the track name, 
+- %ii wherever you want to ignore what is written.
 
 # Example
 If you provide timecodes for you tracks with this text:
