@@ -32,3 +32,7 @@ class SharedMeta:
         self.artist = artist
         self.genre = genre
         
+
+class PatternError(Exception):
+    """An exception raised when the pattern is invalid."""
+    pass

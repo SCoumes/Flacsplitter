@@ -1,8 +1,10 @@
 import os
+import re
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout, QLineEdit, QPushButton, QFileDialog, QVBoxLayout, QSpacerItem, QTextEdit, QLabel, QCheckBox, QSizePolicy
 
+from src.objects import PatternError
 from src.trackSplitter import splitTracks
 from src.messageBoxes import show_error_box, show_message_box
 
@@ -24,8 +26,10 @@ class MainWindow(QMainWindow):
         self.split_button = QPushButton("Split File")
         self.split_button.clicked.connect(self.split)
 
-        # Create the options widget
+        # Create the options widgets
         self.delete_checkbox = QCheckBox("Delete original file after splitting")
+        self.clean_space_checkbox = QCheckBox("Compact spaces in timecodes (recommended)")
+        self.clean_space_checkbox.setChecked(True) 
 
         # Create a layout for the main window
         layout = QVBoxLayout()
@@ -35,6 +39,7 @@ class MainWindow(QMainWindow):
         layout.addItem(QSpacerItem(10, 10))  # Add a spacer to push the button to the bottom
         layout.addWidget(self.split_button)
         layout.addWidget(self.delete_checkbox)
+        layout.addWidget(self.clean_space_checkbox)
         layout.setSpacing(10)  # Set spacing to 0 to make widgets close to each other
         layout.setContentsMargins(10, 10, 10, 10)  # Set margins to 0
 
@@ -45,13 +50,17 @@ class MainWindow(QMainWindow):
 
     def split(self):
         pattern = self.pattern_choice.pattern_edit.text()
-        timeCodes = self.time_codes_edit.toPlainText()
         mainFileLocation = self.file_selector.file_path_edit.text()
+        timeCodes = self.time_codes_edit.toPlainText()
+        if self.clean_space_checkbox.isChecked():
+            timeCodes = re.sub(r"[ \t]+", " ", timeCodes)
         try:
             splitTracks(pattern, timeCodes, mainFileLocation)
             show_message_box("File split successfully")
+        except PatternError as e:
+            show_error_box("Pattern mismatch. \n" + str(e))
         except Exception as e:
-            show_error_box("Something went wrong. Perhaps a bad pattern? Here is the internal error: \n" + str(e))
+            show_error_box("Something went wrong. Here is the internal error: \n" + str(e))
         if self.delete_checkbox.isChecked():
             try:
                 os.remove(mainFileLocation)

@@ -8,6 +8,8 @@ A pattern is written like a line that gives a timecode and the corresponding tra
 - %tt for the track name, 
 - %ii wherever you want to ignore what is written.
 
+If the "Compact spaces in timecodes" checkbox is checked, repeated spaces and tabs will be compacted to a single space before the timecodes are read.
+
 # Example
 If you provide timecodes for you tracks with this text:
 ```

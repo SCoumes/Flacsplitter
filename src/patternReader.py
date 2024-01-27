@@ -1,5 +1,5 @@
 from typing import Tuple, List, Dict
-from src.objects import Track
+from src.objects import Track, PatternError
 import re
 
 def patternToRegex(pattern :str) -> re.Pattern:
@@ -12,8 +12,11 @@ def patternToRegex(pattern :str) -> re.Pattern:
     regex = regex.replace(" ", "\\s")
     regex = regex.replace("[", "\\[")
     regex = regex.replace("]", "\\]")
+    regex = regex.replace("(", "\\(")
+    regex = regex.replace(")", "\\)")
     regex = regex.replace(".","\\.")
     regex = regex.replace("?","\\?")
+    regex = regex.replace("|","\\|")
     regex = regex.replace("%hh", "(?P<hh>\\d+)")
     regex = regex.replace("%mm", "(?P<mm>\\d+)")
     regex = regex.replace("%ss", "(?P<ss>\\d+)")
@@ -32,7 +35,7 @@ def linesToTracks(pattern, lines : List[str], totalRuntime : int) -> List[Track]
         try:
             matching = re.fullmatch(regex, line).groupdict()
         except AttributeError:
-            raise Exception(f"Pattern {pattern} does not match line {line}")
+            raise PatternError(f"Pattern {pattern} does not match line {line}")
 
         """
         Pattern nomenclature: 
@@ -43,17 +46,17 @@ def linesToTracks(pattern, lines : List[str], totalRuntime : int) -> List[Track]
             %ii : Ignore
         """
         time = 0
-        if "%hh" in matching:
-            time += int(matching["%hh"]) * 3600
-        if "%mm" in matching:
-            time += int(matching["%mm"]) * 60
-        if "%ss" in matching:
-            time += int(matching["%ss"])
+        if "hh" in matching:
+            time += int(matching["hh"]) * 3600
+        if "mm" in matching:
+            time += int(matching["mm"]) * 60
+        if "ss" in matching:
+            time += int(matching["ss"])
         time *= 1000 # Convert to milliseconds
         times.append(time)
 
-        if "%tt" in matching:
-            name = matching["%tt"]
+        if "tt" in matching:
+            name = matching["tt"]
         else:
             name = "Unknown Title"
         names.append(name)
@@ -62,8 +65,6 @@ def linesToTracks(pattern, lines : List[str], totalRuntime : int) -> List[Track]
     tracks = []
     for i, name in enumerate(names):
         tracks.append(Track(i+1, times[i], times[i+1], name))
-    for t in tracks:
-        print(t)
     return tracks
 
     
