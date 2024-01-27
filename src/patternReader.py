@@ -2,40 +2,46 @@ from typing import Tuple, List, Dict
 from src.objects import Track
 import re
 
-def findVariablesOrder(pattern) -> List[str]:
-    """Receive a pattern and return the order in which %hh, %dd, %ss, and/or %tt are found in it. 
-    @param pattern : The pattern to be read. For example "%mm : %ss - %tt" is a valid pattern.
-    @return : A list containing the order in which the variables are found. For example, the return value for the example pattern above would be ["%mm", "%ss", "%tt"].
+def patternToRegex(pattern :str) -> re.Pattern:
     """
-    variables = ["%hh", "%mm", "%ss", "%tt"]
-    found = re.findall("%\w\w", pattern)
-    return [variable for variable in found if variable in variables]
-
-def readLine(pattern : str, line : str) -> Dict[str, str]:
+    Convert a pattern following the "in house" format to a regex object.
+    @param pattern: The pattern to convert
+    @return: A matching regex object
     """
-    Reads a line of text and returns a list of matches for the given regular expression.
-    @param pattern: Contains "%ss", "%tt", and/or "%mm" which need to be found in the line. For example "%mm : %ss - %tt" is a valid pattern. We further assume that each of the variables appears at most once in the pattern.
-    @param line: The line of text to be read. Should match the pattern. For example "2 : 35 - TrackName" would be a valid line matching the example pattern above. 
-    @return: A dict containing the matches for the variables. For example, the return value for the example pattern and line above would be {"%tt" : "TrackName", "%mm" : "2", "%ss" : 35).
-    """
-    variables = findVariablesOrder(pattern)
-    for var in variables:
-        pattern = pattern.replace(var, "(.*)")
-    matches = re.findall(pattern, line)
-    if not matches :
-        raise Exception("No match found.")
-    matching = dict()
-    for i, var in enumerate(variables):
-        matching.update({var : matches[0][i]})
-    return matching
+    regex : str = pattern
+    regex = regex.replace(" ", "\\s")
+    regex = regex.replace("[", "\\[")
+    regex = regex.replace("]", "\\]")
+    regex = regex.replace(".","\\.")
+    regex = regex.replace("?","\\?")
+    regex = regex.replace("%hh", "(?P<hh>\\d+)")
+    regex = regex.replace("%mm", "(?P<mm>\\d+)")
+    regex = regex.replace("%ss", "(?P<ss>\\d+)")
+    regex = regex.replace("%tt", "(?P<tt>.*)")
+    regex = regex.replace("%ii", ".*")
+    return re.compile(regex)
     
 def linesToTracks(pattern, lines : List[str], totalRuntime : int) -> List[Track]:
     times = []
     names = []
 
-    for line in lines:
-        matching = readLine(pattern, line)
+    regex : re.Pattern = patternToRegex(pattern)
 
+    for line in lines:
+        line = line.strip()
+        try:
+            matching = re.fullmatch(regex, line).groupdict()
+        except AttributeError:
+            raise Exception(f"Pattern {pattern} does not match line {line}")
+
+        """
+        Pattern nomenclature: 
+            %hh : Hours
+            %mm : Minutes
+            %ss : Seconds
+            %tt : Track name
+            %ii : Ignore
+        """
         time = 0
         if "%hh" in matching:
             time += int(matching["%hh"]) * 3600
