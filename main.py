@@ -6,7 +6,7 @@ from src import MainWindow
 
 def main():
     app = QApplication(sys.argv)
-    app_icon = QIcon("icon.png")
+    app_icon = QIcon("flacsplitter.png")
     app.setWindowIcon(app_icon)
 
     window = MainWindow()
